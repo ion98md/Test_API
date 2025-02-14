@@ -14,9 +14,37 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
+from django.conf.urls import include
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Test API E-commerce",
+        default_version="v1",
+        description="Test description",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="iom.boghean@gmail.com"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
+
 
 urlpatterns = [
+    path('user/', include("apps.users.urls")),
     path('admin/', admin.site.urls),
+    path('products/', include("apps.products.urls"))
 ]
+
+if settings.DEBUG:
+    # This allows the error pages to be debugged during development, just visit
+    # these url in browser to see how these error pages look like.
+    urlpatterns += [
+        path("", schema_view.with_ui("swagger", cache_timeout=None), name="schema-swagger-ui"),
+    ]
